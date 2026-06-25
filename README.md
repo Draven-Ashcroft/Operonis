@@ -114,17 +114,6 @@ npm run dev
 
 ---
 
-## Roadmap
-
-* [ ] Catabolite repression (CAP–cAMP)
-* [ ] Adjustable environmental conditions
-* [ ] Experimental mode
-* [ ] Data export
-* [ ] Additional bacterial operons
-* [ ] Mobile optimization
-
----
-
 ## Contributing
 
 Contributions, scientific feedback, and bug reports are welcome.
