@@ -122,7 +122,7 @@ Contributions, scientific feedback, and bug reports are welcome.
 
 ## License
 
-MIT License
+GNU 3 License
 
 ---
 
