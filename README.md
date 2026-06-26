@@ -96,45 +96,45 @@ Suitable for:
 .
 ├── index.html
 ├── assets/
-│   ├── social-preview.png
+│   ├── repo-banner.png
 │   ├── images/
 │   └── icons/
 ├── css/
 ├── js/
 └── README.md
+```
 
 ---
 
-📜 License
+## 📜 License
 
-This project is licensed under the GNU General Public License v3.0 (GPL-3.0).
+This project is licensed under the **GNU General Public License v3.0 (GPL-3.0)**.
 
 You are free to use, modify, and distribute this project under the terms of the GPL-3.0 License. Any redistributed or modified version must also remain open source under the same license.
 
 ---
 
-👨‍🏫 Author
+## 👨‍🏫 Author
 
-Draven Ashcroft
+**Draven Ashcroft**
 
-Bio Lecturer – DIPS (Chain of Institutions)
+**Bio Lecturer – DIPS (Chain of Institutions)**
 
 - M.Sc. (Agricultural Entomology)
 - ASRB–NET Qualified
 
 ---
 
-🙏 Credits
+## 🙏 Credits
 
 Special thanks to the AI tools that assisted throughout development:
 
-- OpenAI (ChatGPT) — Debugging, scientific review, and refinement
-- Claude AI — Code implementation and optimization
-- Kimi AI — Initial project draft and early development
+- **OpenAI (ChatGPT)** — Debugging, scientific review, and refinement
+- **Claude AI** — Code implementation and optimization
+- **Kimi AI** — Initial project draft and early development
 
 ---
 
 <p align="center">
 Made with ❤️ for Biology Education & Open Science
 </p>
-```
