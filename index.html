@@ -152,11 +152,11 @@
   }
 
   @keyframes idle-tumble {
-    0%   { transform: rotate(-4deg) translateY(0px);  }
-    25%  { transform: rotate(2deg)  translateY(-3px); }
-    50%  { transform: rotate(5deg)  translateY(0px);  }
-    75%  { transform: rotate(-1deg) translateY(3px);  }
-    100% { transform: rotate(-4deg) translateY(0px);  }
+    0%   { transform: rotate(0deg)     translateY(0px);  }
+    25%  { transform: rotate(0.5deg)   translateY(-1.5px); }
+    50%  { transform: rotate(0deg)     translateY(-2px); }
+    75%  { transform: rotate(-0.5deg)  translateY(-1.5px); }
+    100% { transform: rotate(0deg)     translateY(0px);  }
   }
 
   .flagella {
@@ -259,11 +259,11 @@
   .ctrl-btn.inactive { opacity: 0.38; transform: scale(0.94); }
 
   .ctrl-btn-label {
-    font-size: clamp(9px, 1.1vw, 11px); letter-spacing: 0.10em;
-    text-transform: uppercase; color: rgba(200,230,220,0.70);
+    font-size: clamp(7px, 0.85vw, 9px); letter-spacing: 0.12em;
+    text-transform: uppercase; color: rgba(200, 230, 220, 0.60);
     transition: color 0.22s ease; text-align: center; white-space: nowrap;
   }
-  .ctrl-btn-wrap.active-wrap .ctrl-btn-label { color: #fff; }
+  .ctrl-btn-wrap.active-wrap .ctrl-btn-label { color: rgba(200, 230, 220, 0.95); }
 
   /* ── Phase 2 function dot buttons ── */
   .p2-controls {
@@ -279,6 +279,9 @@
   .p2-btn-wrap {
     display: flex; flex-direction: column;
     align-items: center; gap: 8px; cursor: pointer;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.6s ease;
   }
   .p2-btn {
     width: clamp(26px, 3.6vh, 38px);
@@ -318,12 +321,17 @@
   .p2-btn.laca.firing    { box-shadow: 0 0 22px 8px rgba(255,80,180,0.35); }
 
   .p2-btn-label {
-    font-size: clamp(9px, 1.1vw, 11px); letter-spacing: 0.10em;
-    text-transform: uppercase; color: rgba(200,230,220,0.70);
+    font-size: clamp(7px, 0.85vw, 9px); letter-spacing: 0.10em;
+    text-transform: uppercase; color: rgba(200, 230, 220, 0.60);
     text-align: center; white-space: nowrap;
     transition: color 0.22s ease;
   }
-  .p2-btn-wrap.firing-wrap .p2-btn-label { color: #fff; }
+  .p2-btn-wrap.firing-wrap .p2-btn-label { color: rgba(200, 230, 220, 0.95); }
+
+  .p2-btn-wrap.unlocked {
+    opacity: 1;
+    pointer-events: all;
+  }
 
   /* Phase nav arrows */
   .phase-nav {
@@ -382,6 +390,42 @@
     box-shadow: none;
   }
 
+  /* Reset button — matches step-btn design, sits beside zoom */
+  .reset-btn {
+    width: clamp(26px, 3.6vh, 38px);
+    height: clamp(26px, 3.6vh, 38px);
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    outline: none;
+    background-clip: padding-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(13px, 1.7vh, 18px);
+    color: rgba(200,230,220,0.85);
+    background: radial-gradient(circle at 38% 35%,
+      rgba(200,220,230,0.22),
+      rgba(80,100,110,0.35));
+    transition: transform 0.15s ease, box-shadow 0.18s ease;
+    font-family: 'Courier New', monospace;
+  }
+  .reset-btn::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(200,220,240,0.18);
+    transition: border-color 0.18s ease;
+  }
+  .reset-btn:hover {
+    transform: scale(1.10);
+    box-shadow: 0 0 10px 3px rgba(200,220,240,0.22);
+  }
+  .reset-btn:hover::before { border-color: rgba(200,220,240,0.50); }
+  .reset-btn:active { transform: scale(0.90); }
+
   /* Ribosome in bact2 */
   .bact2-ribosome { pointer-events: none; }
 
@@ -428,10 +472,10 @@
     gap: 5px;
   }
   .step-label {
-    font-size: clamp(6px, 0.75vw, 8px);
-    letter-spacing: 0.18em;
+    font-size: clamp(7px, 0.85vw, 9px);
+    letter-spacing: 0.15em;
     text-transform: uppercase;
-    color: var(--label-dim);
+    color: rgba(200, 230, 220, 0.60);
   }
   /* Step buttons match ctrl-btn design exactly */
   .step-btn {
@@ -1152,12 +1196,15 @@
       <button class="step-btn" id="zoom-down">−</button>
     </div>
 
+    <div class="step-row">
+      <span class="step-label">RESET</span>
+      <button class="reset-btn" id="reset-btn" title="Reset to start">↺</button>
+    </div>
 
-  </div>
+  </div><!-- /step-controls -->
 
   <!-- Phase nav — bottom of strip -->
   <div class="phase-nav" id="phase-nav">
-    <button class="phase-arrow" id="phase-prev" disabled aria-label="Phase 1" title="Back to Phase 1">❮</button>
     <span class="phase-indicator" id="phase-label">Phase&nbsp;1</span>
     <button class="phase-arrow" id="phase-next" title="Phase 2 — activate Lactose first">❯</button>
   </div>
@@ -2301,11 +2348,6 @@
           <rect x="189.5" y="230" width="7" height="2.5" rx="1" fill="#00e5a0" fill-opacity="0.60"/>
         </g>
 
-        <!-- E. coli label -->
-        <text x="150" y="218" text-anchor="middle" font-size="5.5"
-              fill="rgba(0,229,160,0.35)" font-family="'Courier New',monospace"
-              font-style="italic" letter-spacing="0.8">E. coli · Translation</text>
-
         <!-- mRNA strand — polycistronic, color-coded segments -->
         <!-- y=258 (middle of cell), x=68→232 -->
         <g id="bact2-mrna" opacity="0">
@@ -2497,7 +2539,7 @@
   const zoomVal   = document.getElementById('zoom-val');
   const bactLayer = document.querySelector('.bact-layer');
 
-  const SPEED_STEPS = [0.1, 0.15, 0.25, 0.5, 0.75, 1, 1.5, 2, 3, 4];
+  const SPEED_STEPS = [0.1, 0.15, 0.2, 0.25, 0.5, 0.75, 1, 1.5, 2, 3, 4];
   let speedIdx = 2; // 0.2× default — slow for teaching
 
   function applySpeed() {
@@ -2546,8 +2588,11 @@
   let narrativeLocked  = false;  // true while an important message is protected
   let narrativeLockTimer = null;
 
-  function showNarrative(msg, highlight = false) {
+  function showNarrative(msg, highlight = false, fromP2 = false) {
     if (!narrative) return;
+
+    // Phase 1 background systems must not overwrite Phase 2 narrative
+    if (currentPhase === 2 && !fromP2) return;
 
     // Same message already showing — just refresh timer, don't flicker
     if (narrative.textContent === msg) {
@@ -4353,7 +4398,7 @@
       lacA: 'LacA translation begins',
     };
     const narrativeTid = setTimeout(() => {
-      if (P2.active) showNarrative(translationMsgs[gene.name] || '', true);
+      if (P2.active) showNarrative(translationMsgs[gene.name] || '', true, true);
     }, spd(300));  // brief delay so ribosome is visibly moving before text appears
     P2.timers.push(narrativeTid);
 
@@ -4601,7 +4646,7 @@
           P2.rafIds.push(rafId);
         }
         requestAnimationFrame(spin);
-        showNarrative('β-Galactosidase formed', true);
+        showNarrative('β-Galactosidase formed', true, true);
         // Start cleavage animation after rotor spins up
         const tid = setTimeout(() => runBgalCleavage(el), spd(800));
         P2.timers.push(tid);
@@ -4612,7 +4657,7 @@
       container.appendChild(el);
       setTimeout(() => {
         el.style.transition = 'opacity 0.5s ease'; el.style.opacity = '1';
-        showNarrative('Permease formed', true);
+        showNarrative('Permease formed', true, true);
         // Drift permease to membrane channel, then start lactose import
         const tid = setTimeout(() => runPermeaseDocking(el), spd(700));
         P2.timers.push(tid);
@@ -4623,14 +4668,25 @@
       container.appendChild(el);
       setTimeout(() => {
         el.style.transition = 'opacity 0.5s ease'; el.style.opacity = '1';
-        showNarrative('Transacetylase formed', true);
+        showNarrative('Transacetylase formed', true, true);
         // All three proteins produced — show the closing statement after a pause
         const endTid = setTimeout(() => {
-          if (P2.active) showNarrative('Lac Operon functions as a unit to utilize lactose', false);
+          if (P2.active) showNarrative('Lac Operon functions as a unit to utilize lactose', false, true);
         }, spd(3200));
         P2.timers.push(endTid);
         const tid = setTimeout(() => runBact2Substrates(el), spd(600));
         P2.timers.push(tid);
+
+        // Unlock dot buttons now that all proteins are formed — staggered fade-in
+        const btnOrder = ['p2-btn-bgal','p2-btn-allolac','p2-btn-lacy','p2-btn-laca'];
+        btnOrder.forEach((id, i) => {
+          const unlockTid = setTimeout(() => {
+            if (!P2.active) return;
+            const btn = document.getElementById(id);
+            if (btn) btn.closest('.p2-btn-wrap')?.classList.add('unlocked');
+          }, spd(1800 + i * 300));
+          P2.timers.push(unlockTid);
+        });
       }, 120);
     }
   }
@@ -4640,6 +4696,12 @@
     if (P2.active) return;
     P2.active = true;
     p2TurbineIdx = 0;  // always reset so rotor IDs are fresh on re-entry
+
+    // Lock dot buttons until auto-sequence completes
+    ['p2-btn-bgal','p2-btn-allolac','p2-btn-lacy','p2-btn-laca'].forEach(id => {
+      const wrap = document.getElementById(id);
+      if (wrap) wrap.closest('.p2-btn-wrap')?.classList.remove('unlocked');
+    });
 
     // Clear product layers
     ['bact2-ribosomes','bact2-products','bact2-substrates'].forEach(id => {
@@ -4689,7 +4751,7 @@
     const tid1 = setTimeout(() => {
       const mrna = document.getElementById('bact2-mrna');
       if (mrna) { mrna.style.transition = 'opacity 0.8s ease'; mrna.style.opacity = '1'; }
-      showNarrative('Ribosome reads transcribed mRNA', true);
+      showNarrative('Ribosome reads transcribed mRNA', true, true);
     }, spd(2500));
     P2.timers.push(tid1);
 
@@ -4710,8 +4772,17 @@
     P2.rafIds.forEach(id => cancelAnimationFrame(id)); P2.rafIds = [];
     clearCardTimers();  // Fix 5: cancel any in-flight card step timers
 
+    // Re-lock dot buttons for next Phase 2 entry
+    ['p2-btn-bgal','p2-btn-allolac','p2-btn-lacy','p2-btn-laca'].forEach(id => {
+      const btn = document.getElementById(id);
+      if (btn) btn.closest('.p2-btn-wrap')?.classList.remove('unlocked');
+    });
+
     const bactSvgStop = BACT_SVG;
     const bact1Stop   = document.getElementById('bact1');
+
+    // Restore bact1 immediately — don't wait for viewBox animation
+    if (bact1Stop) { bact1Stop.style.transition = 'opacity 0.5s ease'; bact1Stop.style.opacity = '1'; }
 
     // Fade bact2 out first (0.7s), then pan viewBox back to Phase 1
     const bact2 = document.getElementById('bact2');
@@ -5237,6 +5308,31 @@
   const phaseLabel = document.getElementById('phase-label');
   let currentPhase = 1;
 
+  // ── Full reset — returns to Phase 1, static condition ──
+  function doReset() {
+    // 1. If in Phase 2, tear it down cleanly
+    if (currentPhase === 2) {
+      currentPhase = 1;
+      if (phaseNext)  phaseNext.disabled  = true;
+      if (phaseLabel) phaseLabel.textContent = 'Phase 1';
+      document.getElementById('controls').style.display = '';
+      document.getElementById('p2-controls').classList.remove('visible');
+      closeCard();
+      stopPhase2();
+    }
+    // 2. Reset zoom and speed to defaults
+    speedIdx = 2; applySpeed();
+    zoomIdx  = 4; applyZoom();
+    // 3. Snap back to static condition — this clears all Phase 1 timers,
+    //    resets inductionPhase, repositions repressor, clears particles
+    setCondition('static');
+    // 4. Update phase arrow state
+    setTimeout(updatePhaseNavState, 50);
+  }
+
+  const resetBtn = document.getElementById('reset-btn');
+  if (resetBtn) resetBtn.addEventListener('click', doReset);
+
   function setPhase(n) {
     currentPhase = n;
     if (n === 2) {
@@ -5257,6 +5353,7 @@
       closeCard();
       stopPhase2();
       showNarrative('lac operon · gene regulation', false);
+      setTimeout(updatePhaseNavState, 50);
     }
   }
 
@@ -5273,10 +5370,11 @@
   if (p2BtnLacy)   p2BtnLacy.addEventListener('click',   p2FireLacy);
   if (p2BtnLaca)   p2BtnLaca.addEventListener('click',   p2FireLaca);
 
-  // Enable → arrow only when lac operon is actively transcribing
+  // Enable → arrow only when lactose condition is active AND transcription is running
   function updatePhaseNavState() {
     if (phaseNext) {
-      const canGoP2 = STATE.condition === 'lactose' &&
+      const canGoP2 = currentPhase === 1 &&
+                      STATE.condition === 'lactose' &&
                       STATE.inductionPhase !== 'idle' &&
                       STATE.inductionPhase !== 'particles-drifting';
       phaseNext.disabled = !canGoP2;
@@ -5287,6 +5385,7 @@
   // ── Init — must run after ALL const declarations ──
   setCondition('static');
   setupP1ClickHandlers();
+  updatePhaseNavState();
 
 </script>
 
