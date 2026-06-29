@@ -1,43 +1,41 @@
 <p align="center">
-  <img src="assets/repo-banner.png" alt="Karyon Banner" width="100%">
+  <img src="assets/repo-banner.png" alt="Operon-Kodex Banner" width="100%">
 </p>
 
-<h1 align="center">🧬 Karyon</h1>
+<h1 align="center">🧬 Operon-Kodex</h1>
 
 <p align="center">
-Interactive Molecular Biology Visualizations<br>
-HTML5 Canvas • Scientific Animation • Open Source
+Interactive Visualization of the <b>Lac Operon</b><br>
+Gene Regulation • Transcription • Translation • HTML5 Canvas
 </p>
 
 ---
 
 ## 📖 Overview
 
-**Karyon** is an open-source collection of scientifically accurate molecular biology visualizations designed for education, scientific communication, and interactive learning. Inspired by modern scientific illustration principles, it transforms complex biological processes into intuitive browser-based experiences.
+**Operon-Kodex** is an open-source educational visualization of the **Lac Operon**, designed to make bacterial gene regulation intuitive through scientifically accurate, browser-based animation. The project combines clean scientific illustration with interactive storytelling to simplify one of molecular biology's most fundamental regulatory systems.
 
 ---
 
 ## ✨ Features
 
-- Interactive HTML5 Canvas visualizations
-- Publication-inspired scientific illustrations
-- Smooth animations and transitions
-- Biologically accurate representations
-- Browser-based with no external dependencies
-- Responsive and mobile-friendly
+- Interactive HTML5 Canvas animation
+- Scientifically accurate visualization
+- Step-by-step gene regulation workflow
+- Transcription and translation animation
+- Responsive, browser-based experience
+- No external libraries or frameworks
 
 ---
 
-## 🧬 Current Modules
+## 🧬 Biological Workflow
 
-- DNA Visualizer
-- Eukaryotic Transcription (RNA Polymerase I)
-- Lac Operon
-- Meiosis
-- Evolution
-- Pedigree Mapper
-
-More interactive modules are under active development.
+- LacI repressor regulation
+- Operator activation
+- RNA polymerase binding
+- Transcription of **lacZ**, **lacY**, and **lacA**
+- Translation and protein synthesis
+- Lactose transport and metabolism
 
 ---
 
@@ -68,20 +66,20 @@ Licensed under the **GNU General Public License v3.0 (GPL-3.0)**.
 
 ## 🙏 Acknowledgements
 
-Special thanks to the AI tools that accelerated development:
+Special thanks to:
 
 - **OpenAI (ChatGPT)** — scientific review, debugging, and refinement
 - **Anthropic Claude** — implementation assistance
 - **Google Gemini** — brainstorming and idea exploration
 
-Inspired by **BioRender**, **Nature Reviews Molecular Biology**, and **NCERT Biology**.
+Inspired by **BioRender**, **NCERT Biology**, and modern scientific visualization principles.
 
 ---
 
 <p align="center">
 
-### 🧬 Karyon
+### 🧬 Operon-Kodex
 
-**Initiating the Code of Life.**
+**Decoding Gene Regulation.**
 
 </p>
