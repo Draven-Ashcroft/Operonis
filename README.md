@@ -33,24 +33,16 @@ Gene Regulation • Transcription • Translation • HTML5 Canvas
 - LacI repressor regulation
 - Operator activation
 - RNA polymerase binding
+- Allolactose as Inducer
 - Transcription of **lacZ**, **lacY**, and **lacA**
-- Translation and protein synthesis
-- Lactose transport and metabolism
-
----
-
-## 🛠️ Technologies
-
-- HTML5
-- CSS3
-- JavaScript (ES6)
-- HTML5 Canvas API
+- Functional products of **lacZ**, **lacY**, and **lacA** 
+- Lactose ON/OFF Metabolism 
 
 ---
 
 ## 📜 License
 
-Licensed under the **GNU General Public License v3.0 (GPL-3.0)**.
+**GNU General Public License v3.0 (GPL-3.0)**.
 
 ---
 
