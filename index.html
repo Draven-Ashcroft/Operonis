@@ -7,6 +7,14 @@
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+  /* Kill the default mobile tap-highlight rectangle. Touch WebKit/Chrome
+     draw a translucent blue box at the tap point on ANY element, sized to
+     its bounding box — that's why round buttons (step-btn, phase-arrow,
+     p2-btn, ctrl-btn, etc.) still show a rectangle. Applied globally so
+     new interactive elements don't need to remember this individually. */
+  * { -webkit-tap-highlight-color: transparent; }
+  html { -webkit-tap-highlight-color: transparent; }
+
   :root {
     --black:      #000000;
     --label:      rgba(200, 230, 220, 0.45);
@@ -95,26 +103,6 @@
       rgba(60, 30, 0, 0.15) 0%, transparent 70%);
     pointer-events: none;
     z-index: 0;
-  }
-
-  /* ── Top label ── */
-  .specimen-label {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-  }
-  .specimen-label .eyebrow {
-    font-size: clamp(9px, 1.1vw, 11px);
-    color: var(--label-dim);
-  }
-  .specimen-label .name {
-    font-size: clamp(13px, 1.7vw, 17px);
-    color: var(--label);
-    font-style: italic;
-    letter-spacing: 0.18em;
   }
 
   /* ── Petri dish wrapper — fills center card ── */
@@ -553,50 +541,6 @@
     font-family: 'Courier New', monospace;
   }
 
-  /* ── Utility controls: speed + zoom ── */
-  .util-controls {
-    display: flex;
-    gap: clamp(16px, 2.5vw, 32px);
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-  }
-  .util-group {
-    display: flex; flex-direction: column; align-items: center; gap: 5px;
-  }
-  .util-label {
-    font-size: clamp(7px, 0.85vw, 9px); letter-spacing: 0.20em;
-    text-transform: uppercase; color: var(--label-dim);
-  }
-  .util-value {
-    font-size: clamp(8px, 0.95vw, 10px); letter-spacing: 0.12em;
-    color: var(--label); min-width: 28px; text-align: center;
-  }
-  /* Custom range slider */
-  .util-slider {
-    -webkit-appearance: none; appearance: none;
-    width: clamp(80px, 10vw, 140px); height: 3px;
-    background: rgba(200,230,220,0.15); border-radius: 2px;
-    outline: none; cursor: pointer;
-  }
-  .util-slider::-webkit-slider-thumb {
-    -webkit-appearance: none; appearance: none;
-    width: 12px; height: 12px; border-radius: 50%;
-    background: var(--label); cursor: pointer;
-    box-shadow: 0 0 6px 2px rgba(200,230,220,0.20);
-    transition: box-shadow 0.2s ease;
-  }
-  .util-slider::-webkit-slider-thumb:hover {
-    box-shadow: 0 0 10px 4px rgba(200,230,220,0.35);
-  }
-  .util-slider::-moz-range-thumb {
-    width: 12px; height: 12px; border-radius: 50%; border: none;
-    background: var(--label); cursor: pointer;
-  }
-  .util-slider:focus::-webkit-slider-thumb {
-    box-shadow: 0 0 0 3px rgba(0,229,160,0.25);
-  }
-
   /* ══════════════════════════════════════
      PHASE 2 CALLING CARD — right panel
   ══════════════════════════════════════ */
@@ -870,9 +814,6 @@
     opacity: 0.12;
   }
 
-  /* ── DNA region glow classes ── */
-  .dna-region-active { filter: url(#dnaRegionGlow); }
-
   /* ══════════════════════════════════════
      ALLOLACTOSE PARTICLES
   ══════════════════════════════════════ */
@@ -1002,12 +943,6 @@
   /* Polymerase travelling group */
   #rnap-traveller {
     transition: none;
-  }
-
-  /* Gene active glow overlays */
-  .gene-active-overlay {
-    pointer-events: none;
-    transition: opacity 0.4s ease;
   }
 
   /* ── Ribosome dots on mRNA — co-translational ── */
@@ -3580,8 +3515,7 @@
     if (BGAL.rafId)    { cancelAnimationFrame(BGAL.rafId); BGAL.rafId = null; }
     if (BGAL.cycleTimer) { clearTimeout(BGAL.cycleTimer); BGAL.cycleTimer = null; }
     // Stop rotor
-    const rotor = document.getElementById('betagal-rotor');
-    if (rotor) rotor.setAttribute('transform', 'rotate(0)');
+    if (BGAL_ROTOR) BGAL_ROTOR.setAttribute('transform', 'rotate(0)');
     // Clear interaction layer
     const layer = document.getElementById('betagalInteractionLayer');
     if (layer) layer.innerHTML = '';
@@ -4241,8 +4175,19 @@
   const P2 = {
     active:   false,
     timers:   [],
-    rafIds:   [],   // tracks bact2 animation rAF IDs
+    rafIds:   new Set(),   // tracks in-flight bact2 animation rAF IDs — entries
+                            // are removed as each frame fires (see helper below)
+                            // so this stays bounded instead of growing every
+                            // frame for the whole Phase 2 session.
   };
+
+  // Track a recursive rAF chain without leaking ids into P2.rafIds forever.
+  // Returns a function you call each frame with the *new* id; it removes
+  // the previous id from the set and adds the new one.
+  function p2TrackRaf(prevId, newId) {
+    if (prevId !== null) P2.rafIds.delete(prevId);
+    P2.rafIds.add(newId);
+  }
 
   // Gene segments in bact2 SVG coordinates (mRNA y=258)
   const P2_MRNA_Y = 258;
@@ -4449,6 +4394,7 @@
     }, spd(300));  // brief delay so ribosome is visibly moving before text appears
     P2.timers.push(narrativeTid);
 
+    let myRafId = null;
     function tick(now) {
       if (!P2.active) { try { rib.remove(); } catch(_){} return; }
       if (!t0) t0 = now;
@@ -4458,15 +4404,17 @@
 
       if (raw < 1) {
         const rafId = requestAnimationFrame(tick);
-        P2.rafIds.push(rafId);
+        p2TrackRaf(myRafId, rafId);
+        myRafId = rafId;
       } else {
+        P2.rafIds.delete(myRafId);
         rib.style.transition = 'opacity 0.4s ease'; rib.style.opacity = '0';
         setTimeout(() => { try { rib.remove(); } catch(_){} }, 450);
         onDone && onDone();
       }
     }
-    const rafId = requestAnimationFrame(tick);
-    P2.rafIds.push(rafId);
+    myRafId = requestAnimationFrame(tick);
+    P2.rafIds.add(myRafId);
   }
 
   // ═══════════════════════════════════════════════════════════
@@ -4684,15 +4632,18 @@
         el.style.transition = 'opacity 0.5s ease'; el.style.opacity = '1';
         // Spin rotor
         let angle = 0;
+        const rotorEl = document.getElementById(`bact2-rotor-${idx}`);  // cached once
+        let mySpinId = null;
         function spin() {
-          if (!P2.active) return;
+          if (!P2.active) { P2.rafIds.delete(mySpinId); return; }
           angle = (angle + 0.35) % 360;
-          const rotor = document.getElementById(`bact2-rotor-${idx}`);
-          if (rotor) rotor.setAttribute('transform', `rotate(${angle.toFixed(1)})`);
+          if (rotorEl) rotorEl.setAttribute('transform', `rotate(${angle.toFixed(1)})`);
           const rafId = requestAnimationFrame(spin);
-          P2.rafIds.push(rafId);
+          p2TrackRaf(mySpinId, rafId);
+          mySpinId = rafId;
         }
-        requestAnimationFrame(spin);
+        mySpinId = requestAnimationFrame(spin);
+        P2.rafIds.add(mySpinId);
         showNarrative('β-Galactosidase formed', true, true);
         // Start cleavage animation after rotor spins up
         const tid = setTimeout(() => runBgalCleavage(el), spd(800));
@@ -4768,6 +4719,7 @@
       const endVB   = { x:0, y:166, w:300, h:168 };
       const dur = 1000;
       let t0 = null;
+      let myVBId = null;
       function animVB(now) {
         if (!t0) t0 = now;
         const raw = Math.min((now - t0) / dur, 1);
@@ -4777,9 +4729,16 @@
         const w = startVB.w + (endVB.w - startVB.w) * e;
         const h = startVB.h + (endVB.h - startVB.h) * e;
         bactSvg.setAttribute('viewBox', `${x.toFixed(1)} ${y.toFixed(1)} ${w.toFixed(1)} ${h.toFixed(1)}`);
-        if (raw < 1) { const rid = requestAnimationFrame(animVB); P2.rafIds.push(rid); }
+        if (raw < 1) {
+          const rid = requestAnimationFrame(animVB);
+          p2TrackRaf(myVBId, rid);
+          myVBId = rid;
+        } else {
+          P2.rafIds.delete(myVBId);
+        }
       }
-      requestAnimationFrame(animVB);
+      myVBId = requestAnimationFrame(animVB);
+      P2.rafIds.add(myVBId);
     }, spd(200));
     P2.timers.push(tid0);
 
@@ -4816,7 +4775,7 @@
   function stopPhase2() {
     P2.active = false;
     P2.timers.forEach(id => clearTimeout(id)); P2.timers = [];
-    P2.rafIds.forEach(id => cancelAnimationFrame(id)); P2.rafIds = [];
+    P2.rafIds.forEach(id => cancelAnimationFrame(id)); P2.rafIds.clear();
     clearCardTimers();  // Fix 5: cancel any in-flight card step timers
 
     // Re-lock dot buttons for next Phase 2 entry
